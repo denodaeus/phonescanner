@@ -1,0 +1,25 @@
+POLYSCAN READ ME
+================
+
+Polyscan is a set of 3 ruby scripts that consolidate registrations from the Aptela A4 and A5 proxy servers, tests each registration for security holes and produces a report. The following ruby gems are required to run the tool:
+
+net/http
+uri
+rubygems
+markaby
+
+Unzip the polyscan.zip file onto a system that has ruby 1.8.7 installed, and has the aforementioned gems.
+
+The first step in running Polyscan is to query the proxy servers for phone registration. The following SQL statements are the standard queries used to produce the input files:
+
+A5: 
+select username, contact, received, user_agent from location order by user_agent into outfile '/tmp/a5.csv';
+
+A4:
+select username, contact, received, user_agent from location order by user_agent into outfile '/tmp/a4.csv';
+
+Once these files are generated and downloaded from the proxy servers, they should be placed in the 'proxy' folder. There are two sample files - a4.csv and a5.csv - in the zip's proxy folder so you can what the data looks like. 
+
+From the command line, run proxymerge.rb, which will generate a file called mergedproxy-sorted.csv in the proxy folder. proxymerge.rb transforms the data in the CSV file into a format that can be used by the polyscan script.
+
+Once the mergedproxy-sorted.csv file is generated, you can run the polyscan.rb file. The tool will put a results file in the 'output' folder in CSV format. If you want to create human readable HTML output, run the makehtml.rb which will create the HTML file in the output folder. 
