@@ -20,6 +20,7 @@ require 'markaby'
 # TO DO
 #
 # Fix bug: :undefined method `[]' for nil:NilClass (probably in page title check)
+# -- actually in the check for server or auth headers, need to protect against nil values here
 #
 # Add a feature that prevents repeat scanning of an IP address
 
@@ -153,14 +154,14 @@ File.open(output_csv, 'w') do |out_file|
             #Extract contents of title tag
             title_rgx = /<title>(.*)<\/title>/
             if response.body =~ title_rgx
-              title = response.body.match(title_rgx)[1]
+              title = response.body.match(title_rgx)[1].nil? ? "" : response.body.match(title_rgx)[1]
             end
             
             # Grab Server Response
             code = response.code
             msg = response.msg
-            server = response['server']
-            auth = response['www-authenticate'] 
+            server = response['server'].nil? ? "" : response['server']
+            auth = response['www-authenticate'] ? "" : response['www-authenticate']
             
             puts "Response code #{code}"
             puts "Message: #{msg}"
