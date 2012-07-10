@@ -15,7 +15,7 @@
 
 time_now = Time.now.strftime('%Y%m%d-%H%M%S')
 input_folder = "proxy"
-input_filenames = ['reg1.csv', 'reg3.csv']
+input_filenames = ['vocalocity.csv']
 output_folder = "proxy"
 output_filename = "#{input_folder}/mergedproxy.csv"
 

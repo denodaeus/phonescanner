@@ -1,4 +1,4 @@
-#!/opt/local/bin/ruby
+#!/usr/bin/env ruby
 require 'net/http'
 require 'uri'
 require 'rubygems'
