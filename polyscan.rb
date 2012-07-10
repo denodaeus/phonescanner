@@ -161,7 +161,7 @@ File.open(output_csv, 'w') do |out_file|
             code = response.code
             msg = response.msg
             server = response['server'].nil? ? "" : response['server']
-            auth = response['www-authenticate'] ? "" : response['www-authenticate']
+            auth = response['www-authenticate'].nil? ? "" : response['www-authenticate']
             
             puts "Response code #{code}"
             puts "Message: #{msg}"
