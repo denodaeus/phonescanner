@@ -241,17 +241,25 @@ File.open(output_csv, 'w') do |out_file|
               path = ""
               sip_rgx = //
               login = attempt_login(ip,def_user,def_pw,path,sip_rgx)
+
+						elsif title =~ /IP Phone/
+							puts "\n\n::::: YEALINK DETECTED\n\n"
+							def_user = "admin"
+							def_pw = "admin"
+							path="/ConfigManApp.com?Id=16"
+							# TODO:  need to post for a file download and scrape the file download for a password
+							#				 but for now this will identify and authenticate a yealink
+							sip_rgx = //
+							login = attempt_login(ip,def_user,def_pw,path,sip_rgx)
             else
               do_not_log = true
             end
-
 
             if login[:login_status] =~ /Fail/
               do_not_log = true
             else
               do_not_log = nil
             end
-
 
             # So, what happened?
             
