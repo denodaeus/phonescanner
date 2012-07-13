@@ -246,7 +246,7 @@ File.open(output_csv, 'w') do |out_file|
 							puts "\n\n::::: YEALINK DETECTED\n\n"
 							def_user = "admin"
 							def_pw = "admin"
-							path="/ConfigManApp.com?Id=16"
+							path="/ConfigMainApp.com?Id=16"
 							# TODO:  need to post for a file download and scrape the file download for a password
 							#				 but for now this will identify and authenticate a yealink
 							sip_rgx = //
