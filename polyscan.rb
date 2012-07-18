@@ -265,11 +265,13 @@ File.open(output_csv, 'w') do |out_file|
               do_not_log = true
             end
 
-            if login[:login_status] =~ /Fail/
-              do_not_log = true
-            else
-              do_not_log = nil
-            end
+						if login != nil
+            	if login[:login_status] =~ /Fail/
+              	do_not_log = true
+            	else
+              	do_not_log = nil
+            	end
+						end
 
             # So, what happened?
             
@@ -283,8 +285,13 @@ File.open(output_csv, 'w') do |out_file|
                 
 
           # Handle network errors. Greedy  
-          rescue Exception
-            puts ":#{$!}\n\n" # if there's an error, print it
+          #rescue Exception
+           rescue => e
+							puts ": ERROR: " + e
+						 #puts ": ERROR #{$!}\n\n" # if there's an error, print it
+						puts e.backtrace
+					rescue Exception
+						puts ": ERROR #{$!}\n\n"
           end #begin
           
         else
