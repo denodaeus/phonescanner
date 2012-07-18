@@ -93,6 +93,16 @@ def attempt_login(ip,user,pw,path,rgx)
   login_result = { :login_status => result, :pw_status => status, :sip_pw => sip_pw} 
 end
 
+def post_for_file(ip, user, pw, url, savepath)
+	http_request = Net::HTTP.new(url)
+  puts "Grabbing file for " + savepath
+  http_request.open_timeout = 10
+	http_request.read_timeout = 10
+  request = Net::HTTP::Get.new(url.request_uri)
+  request.basic_auth user, pw
+	response = http_request.request(request)
+end
+
 # BEGIN #########################################################
 
 File.open(output_csv, 'w') do |out_file|
@@ -246,7 +256,7 @@ File.open(output_csv, 'w') do |out_file|
 							puts "\n\n::::: YEALINK DETECTED\n\n"
 							def_user = "admin"
 							def_pw = "admin"
-							path="/ConfigMainApp.com?Id=16"
+							path="/ConfigManApp.com?Id=26"
 							# TODO:  need to post for a file download and scrape the file download for a password
 							#				 but for now this will identify and authenticate a yealink
 							sip_rgx = //
