@@ -3,6 +3,7 @@ require 'net/http'
 require 'uri'
 require 'rubygems'
 require 'markaby'
+require 'json'
 
 # read in some csv files, look for public IP addresses
 # if public, probe it for a web server
@@ -101,6 +102,40 @@ def post_for_file(ip, user, pw, url, savepath)
   request = Net::HTTP::Get.new(url.request_uri)
   request.basic_auth user, pw
 	response = http_request.request(request)
+end
+
+def get_base_url(server)
+  url = "http://#{server}:8080/appserver/rest/"
+end
+
+def get_account(id, server)
+  url = get_base_url + "/object/Account/#{account}"
+  response = Net::HTTP.get_response(URI.parse(url))
+  data = response.body
+  result = JSON.parse(data)	
+end
+
+def get_info_from_account_response(acct_response)
+  name = acct_response.get("ContactName")
+  did = acct_response.get("ContactPhone")
+  email = acct_response.get("ContactEmail")
+  h = { "name" => name, "phone" => phone, "email" => email }
+end
+
+def get_account_id_from_dk_id(dk_id)
+  url = get_base_url + "/search/AccountServices?deviceKitId=#{dk_id}"
+  response = Net::HTTP.get_response(URI.parse(url))
+  data = response.body
+  result = JSON.parse(data)
+  account = result.get("AccountId")
+end
+
+def get_device_kit_from_device_property_value(sipid)
+  url = get_base_url + "/search/DeviceProperties?property_value=#{sipid}"
+  response = Net::HTTP.get_response(URI.parse(url))
+  data = response.body
+  result = JSON.parse(data)
+  device = result.get("DeviceKitId")
 end
 
 # BEGIN #########################################################
