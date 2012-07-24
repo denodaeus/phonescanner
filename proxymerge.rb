@@ -28,10 +28,10 @@ newcisco_f_rgx = /(\d+\.\d+.\d+[a-z]*)/
 linksys_m_rgx = /\/(.*)-/
 linksys_f_rgx = /-(.*)/
 polycom_m_rgx = /-(.*)-/
-polycom_f_rgx = /\/(.*)_|\n/
+polycom_f_rgx = /\/(.*)/
 
 ip_rgx = /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/
-phone_model_rgx = /Aastra|Polycom|Linksys|Cisco|eyeBeam|Bria|Zoiper|Acrobits|fring|X-Lite|3CXPhone|A580|Blink|CSCO|DPH|Ekiga|ewua|Grandstream|snom|Helios|IVM|op3|PBX|S675|SIPAUA|Sipura|SpeedTouch|Telephone|Audiocodes|Cyberdata|Media5|Panasonic/
+phone_model_rgx = /Aastra|Polycom|Linksys|Cisco|eyeBeam|Bria|Zoiper|Acrobits|fring|X-Lite|3CXPhone|A580|Blink|CSCO|DPH|Ekiga|ewua|Grandstream|snom|Helios|IVM|op3|PBX|S675|SIPAUA|Sipura|SpeedTouch|Telephone|Audiocodes|Cyberdata|Media5|Panasonic|Yealink/
 
 # Output file fields:
 # Account, User, Phone Make, Phone Model, Phone Firmware, Internal IP, External IP
@@ -46,7 +46,7 @@ File.open(output_filename, 'w') do |out_file|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Parsing \"#{filename}\"..."
       File.open("#{input_folder}/#{filename}").each do |line|
-        
+        puts " ... #{line}" 
         #Split each line into distinct elements
         elements = line.split("\t")
         this_user = elements[0].split('.')[0]
