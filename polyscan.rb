@@ -295,7 +295,7 @@ File.open(output_csv, 'w') do |out_file|
               sip_rgx = //
               login = attempt_login(ip,def_user,def_pw,path,sip_rgx)
 
-						elsif title =~ /IP phone/
+						elsif auth =~ /IP phone/
 							puts "\n\n::::: YEALINK DETECTED\n\n"
 							def_user = "admin"
 							def_pw = "admin"
