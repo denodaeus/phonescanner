@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'net/http'
+require 'net/snmp'
 require 'uri'
 require 'rubygems'
 require 'markaby'
@@ -144,6 +145,30 @@ end
 def get_ext_number_from_device(device)
   result = get_response_from_url("/search/DeviceProperties?deviceGuid=#{device}&propertyGuid=158")
   ext = result.get("PropertyValue")
+end
+
+# SEND EMAIL SUMMARY OF REPORT
+# usage:
+# send_email "root@localhost" msg, opts[:from], to, attachment
+def send_email(to, opts={})
+  opts[:server]      ||='localhost'
+  opts[:from]        ||='root@localhost'
+  opts[:from_alias]  ||='Phone Scanner'
+  opts[:subject]     ||='Phone Scanner Report for ' + Time.new
+  opts[:body]        ||=''
+  opts[:attachment]  ||=''
+  
+  msg = <<END_OF_MESSAGE
+  From: #{opts[:from_alias]} <#{opts[:from]}>
+  To: <#{to}>
+  Subject: #{opts[:subject]}
+
+  #{opts[:body]}
+END_OF_MESSAGE
+
+  Net::SMTP.start(opts[:server]) do |smtp|
+    smtp.send_message (msg, opts[:from], to)
+  end
 end
 
 # BEGIN #########################################################
@@ -355,8 +380,6 @@ File.open(output_csv, 'w') do |out_file|
     
   end # input file block
 end #file open block
-
-
 
 puts "Elapsed time: #{Time.now - start_time} seconds"
 puts "File written to: #{output_csv}"
