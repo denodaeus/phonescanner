@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'net/http'
-require 'net/snmp'
+require 'net/smtp'
 require 'uri'
 require 'rubygems'
 require 'markaby'
