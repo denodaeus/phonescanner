@@ -108,34 +108,42 @@ def get_base_url(server)
   url = "http://#{server}:8080/appserver/rest/"
 end
 
-def get_account(id, server)
-  url = get_base_url + "/object/Account/#{account}"
-  response = Net::HTTP.get_response(URI.parse(url))
-  data = response.body
-  result = JSON.parse(data)	
-end
-
-def get_info_from_account_response(acct_response)
-  name = acct_response.get("ContactName")
-  did = acct_response.get("ContactPhone")
-  email = acct_response.get("ContactEmail")
-  h = { "name" => name, "phone" => phone, "email" => email }
-end
-
-def get_account_id_from_dk_id(dk_id)
-  url = get_base_url + "/search/AccountServices?deviceKitId=#{dk_id}"
+def get_response_from_url(url)
+  url = get_base_url + url
   response = Net::HTTP.get_response(URI.parse(url))
   data = response.body
   result = JSON.parse(data)
+end 
+
+def get_account(account, server)
+  result = get_response_from_url("/object/Account/#{account}")
+end
+
+def get_contact_info_from_account(account)
+  name = account.get("ContactName")
+  did = account.get("ContactPhone")
+  email = account.get("ContactEmail")
+  info = { "name" => name, "phone" => phone, "email" => email }
+end
+
+def get_account_id_from_dk_id(dk_id)
+  result = get_response_from_url("/search/AccountServices?deviceKitId=#{dk_id}")
   account = result.get("AccountId")
 end
 
 def get_device_kit_from_device_property_value(sipid)
-  url = get_base_url + "/search/DeviceProperties?property_value=#{sipid}"
-  response = Net::HTTP.get_response(URI.parse(url))
-  data = response.body
-  result = JSON.parse(data)
-  device = result.get("DeviceKitId")
+  result = get_response_from_url("/search/DeviceProperties?property_value=#{sipid}")
+  dk = result.get("DeviceKitId")
+end
+
+def get_device_from_dk_id(dk_id)
+  result = get_response_from_url("/search/Devices?childDeviceKitObject.deviceKitId=#{dk_id}&childDeviceKitObject.deviceKitTypeId=1&deviceTypeId=1")
+  device = result.get("DeviceGuid")
+end
+
+def get_ext_number_from_device(device)
+  result = get_response_from_url("/search/DeviceProperties?deviceGuid=#{device}&propertyGuid=158")
+  ext = result.get("PropertyValue")
 end
 
 # BEGIN #########################################################
