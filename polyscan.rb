@@ -185,6 +185,8 @@ File.open(output_csv, 'w') do |out_file|
   input_filenames.each do |filename|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Working on \"#{filename}\"...\n\n"
+
+			entries = Hash.new
       File.open("#{input_folder}/#{filename}").each do |line|
         
         # How many phones processed?
@@ -216,6 +218,15 @@ File.open(output_csv, 'w') do |out_file|
         unless ip =~ @private_ip_rgx
           
           begin
+						  entry = entries["#{ip}"]
+							if entry.nil?
+								entries["#{ip}"] = "#{model}"
+							else
+								entries["#{ip}"] += ",#{model}"				
+							end
+						
+						puts "entry ... #{ip} for #{entries[ip]}"
+
             uri = URI.parse("http://#{ip}")
             http = Net::HTTP.new(uri.host)
             http.open_timeout = 1 # seconds
