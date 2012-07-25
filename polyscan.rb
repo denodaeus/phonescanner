@@ -116,7 +116,7 @@ def get_response_from_url(url)
   result = JSON.parse(data)
 end 
 
-def get_account(account, server)
+def get_account(account)
   result = get_response_from_url("/object/Account/#{account}")
 end
 
@@ -147,6 +147,10 @@ def get_ext_number_from_device(device)
   ext = result.get("PropertyValue")
 end
 
+def get_data_for_user(user)
+  account = get_device_kit_from_device_property_value(user)
+end
+
 # SEND EMAIL SUMMARY OF REPORT
 # usage:
 # send_email "root@localhost" msg, opts[:from], to, attachment
@@ -167,7 +171,7 @@ def send_email(to, opts={})
 END_OF_MESSAGE
 
   Net::SMTP.start(opts[:server]) do |smtp|
-    smtp.send_message (msg, opts[:from], to)
+    smtp.send_message(msg, opts[:from], to)
   end
 end
 
@@ -178,13 +182,10 @@ File.open(output_csv, 'w') do |out_file|
   # Write headers
   out_file << "Account,User,IP Address,Manufacturer,Model,Firmware,Server type,HTTP Response code,HTTP Message,Page Title,Login Attempt,Password \n"
   
-  
   input_filenames.each do |filename|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Working on \"#{filename}\"...\n\n"
       File.open("#{input_folder}/#{filename}").each do |line|
-         
-
         
         # How many phones processed?
         print "#{dotcount}: "
@@ -245,8 +246,6 @@ File.open(output_csv, 'w') do |out_file|
             puts "Message: #{msg}"
             puts "Page Title: #{title}\n\n"
 
-            
-            
             ##################################################
             #
             # Check for known devices
@@ -349,8 +348,6 @@ File.open(output_csv, 'w') do |out_file|
               out_file << "#{account},#{user},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               do_not_log = nil
             end  
-            
-                
 
           # Handle network errors. Greedy  
           #rescue Exception
@@ -369,7 +366,6 @@ File.open(output_csv, 'w') do |out_file|
         puts "--------------------------------------------------"
         puts "#{Time.now - start_time} seconds elapsed" 
         puts "--------------------------------------------------\n\n"
-        
         
       end
       puts "DONE"
