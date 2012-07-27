@@ -46,7 +46,7 @@ File.open(output_filename, 'w') do |out_file|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Parsing \"#{filename}\"..."
       File.open("#{input_folder}/#{filename}").each do |line|
-        puts " ... #{line}" 
+        #puts " ... #{line}" 
         #Split each line into distinct elements
         elements = line.split("\t")
         this_user = elements[0].split('.')[0]
