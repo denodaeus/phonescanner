@@ -6,7 +6,6 @@
 dump_file=ARGV[0]
 
 File.open("proxy/#{dump_file}-parsed.csv", "w") { |out_file|
-    out_file.puts "username,contact,received,user_agent"
     line = []
     new_entry = false
     entry = []
