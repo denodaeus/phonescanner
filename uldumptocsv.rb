@@ -15,7 +15,7 @@ File.open("proxy/#{dump_file}-parsed.csv", "w") { |out_file|
         text = ""
         if line =~ /Domain/
           puts "Beginning parsing of #{dump_file}"
-				elsif line =~ /AOR/
+        elsif line =~ /AOR/
             if start == true then start = false else out_file.puts entry.join("\t") end
             new_entry = true
             entry = []
