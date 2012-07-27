@@ -16,7 +16,7 @@ File.open("proxy/#{dump_file}-parsed.csv", "w") { |out_file|
         if line =~ /Domain/
           puts "Beginning parsing of #{dump_file}"
         elsif line =~ /AOR/
-            if start == true then start = false else out_file.puts entry.join("\t") end
+            if start then start = false else out_file.puts entry.join("\t") end
             new_entry = true
             entry = []
             sipid = line.split("AOR:: ")[1].chomp
