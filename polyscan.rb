@@ -233,14 +233,13 @@ File.open(output_csv, 'w') do |out_file|
         unless ip =~ @private_ip_rgx
           
           begin
-						  entry = @entries["#{ip}"]
-							if entry.nil?
-								@entries["#{ip}"] = "#{model}"
-							else
-								@entries["#{ip}"] += ",#{model}"				
-							end
-						
-						puts "entry ... #{ip} for #{@entries[ip]}"
+            entry = @entries["#{ip}"]
+            if entry.nil?
+              @entries["#{ip}"] = "#{model}"
+            else
+              @entries["#{ip}"] += ",#{model}"				
+            end
+            puts "entry ... #{ip} for #{@entries[ip]}"
 
             uri = URI.parse("http://#{ip}")
             http = Net::HTTP.new(uri.host)
