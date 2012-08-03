@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'net/http'
 require 'net/smtp'
+require 'net/https'
 require 'uri'
 require 'rubygems'
 require 'markaby'
@@ -105,50 +106,63 @@ def post_for_file(ip, user, pw, url, savepath)
 	response = http_request.request(request)
 end
 
-def get_base_url(server)
-  url = "http://#{server}:8080/appserver/rest/"
+def get_base_url()
+  url = "https://my.vocalocity.com/appserver/rest"
 end
 
 def get_response_from_url(url)
   url = get_base_url + url
-  response = Net::HTTP.get_response(URI.parse(url))
+  uri = URI.parse(url)
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  request = Net::HTTP::Get.new(uri.request_uri)
+  request.basic_auth("_bsmith", "8317mr")
+  puts "get_response_from_url: fetching #{url} ..."  
+  response = http.request(request)
   data = response.body
   result = JSON.parse(data)
-end 
+  puts JSON.pretty_generate(result)
+  return result
+end
 
 def get_account(account)
   result = get_response_from_url("/object/Account/#{account}")
 end
 
 def get_contact_info_from_account(account)
-  name = account.get("ContactName")
-  did = account.get("ContactPhone")
-  email = account.get("ContactEmail")
-  info = { "name" => name, "phone" => phone, "email" => email }
+  name = account["ContactName"]
+  did = account["ContactPhone"]
+  email = account["ContactEmail"]
+  info = { :name => name, :phone => did, :email => email }
 end
 
 def get_account_id_from_dk_id(dk_id)
   result = get_response_from_url("/search/AccountServices?deviceKitId=#{dk_id}")
-  account = result.get("AccountId")
+  account = result.fetch("AccountServicesList").first.fetch("AccountId")
 end
 
 def get_device_kit_from_device_property_value(sipid)
-  result = get_response_from_url("/search/DeviceProperties?property_value=#{sipid}")
-  dk = result.get("DeviceKitId")
+  result = get_response_from_url("/search/DeviceProperties?property_value=#{sipid}&PropertyGuid=41")
+  dk = result.fetch("DevicePropertiesList").first.fetch("DeviceGuidObject").fetch("DeviceKitId")
 end
 
 def get_device_from_dk_id(dk_id)
-  result = get_response_from_url("/search/Devices?childDeviceKitObject.deviceKitId=#{dk_id}&childDeviceKitObject.deviceKitTypeId=1&deviceTypeId=1")
-  device = result.get("DeviceGuid")
+  result = get_response_from_url("/search/Devices?childDeviceKitObject.deviceKitId=#{dk_id}&childDeviceKitObject.deviceKitTypeId=1&deviceTypeId=9")
+  device = result.fetch("DevicesList").first.fetch("DeviceGuid")
 end
 
 def get_ext_number_from_device(device)
-  result = get_response_from_url("/search/DeviceProperties?deviceGuid=#{device}&propertyGuid=158")
-  ext = result.get("PropertyValue")
+  result = get_response_from_url("/search/DeviceProperties?deviceGuid=#{device}&propertyGuid=157")
+  ext = result.fetch("DevicePropertiesList").first.fetch("PropertyValue")
 end
 
 def get_data_for_user(user)
-  account = get_device_kit_from_device_property_value(user)
+  device_kit = get_device_kit_from_device_property_value(user)
+  account_id = get_account_id_from_dk_id(device_kit)
+  account = get_account(account_id)
+  info = get_contact_info_from_account(account)
+  extension = get_ext_number_from_device(get_device_from_dk_id(get_device_kit_from_device_property_value(user)))
+  data = { :account_id => account_id, :extension => extension, :sipid => user, :name => info[:name], :phone => info[:phone], :email => [:email] }
 end
 
 # SEND EMAIL SUMMARY OF REPORT
@@ -177,6 +191,8 @@ end
 
 # BEGIN #########################################################
 
+
+@entries = Hash.new
 File.open(output_csv, 'w') do |out_file|
   
   # Write headers
@@ -186,7 +202,6 @@ File.open(output_csv, 'w') do |out_file|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Working on \"#{filename}\"...\n\n"
 
-			entries = Hash.new
       File.open("#{input_folder}/#{filename}").each do |line|
         
         # How many phones processed?
@@ -218,14 +233,14 @@ File.open(output_csv, 'w') do |out_file|
         unless ip =~ @private_ip_rgx
           
           begin
-						  entry = entries["#{ip}"]
+						  entry = @entries["#{ip}"]
 							if entry.nil?
-								entries["#{ip}"] = "#{model}"
+								@entries["#{ip}"] = "#{model}"
 							else
-								entries["#{ip}"] += ",#{model}"				
+								@entries["#{ip}"] += ",#{model}"				
 							end
 						
-						puts "entry ... #{ip} for #{entries[ip]}"
+						puts "entry ... #{ip} for #{@entries[ip]}"
 
             uri = URI.parse("http://#{ip}")
             http = Net::HTTP.new(uri.host)
@@ -356,7 +371,12 @@ File.open(output_csv, 'w') do |out_file|
             #Check to see if we write to file
             if do_not_log == nil
               puts "writing to file\n\n"
-              out_file << "#{account},#{user},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+              begin
+                data = get_data_for_user(user)
+                out_file << "#{data[:account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+              rescue
+                out_file << ",#{user},,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+              end
               do_not_log = nil
             end  
 
@@ -388,5 +408,6 @@ File.open(output_csv, 'w') do |out_file|
   end # input file block
 end #file open block
 
+@entries.each { |k,v| puts "ip = #{k}, ua's = #{v}" }
 puts "Elapsed time: #{Time.now - start_time} seconds"
 puts "File written to: #{output_csv}"
