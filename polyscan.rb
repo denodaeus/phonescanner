@@ -121,7 +121,7 @@ def get_response_from_url(url)
   response = http.request(request)
   data = response.body
   result = JSON.parse(data)
-  puts JSON.pretty_generate(result)
+#puts JSON.pretty_generate(result)
   return result
 end
 
