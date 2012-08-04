@@ -7,6 +7,16 @@ require 'rubygems'
 require 'markaby'
 require 'json'
 
+# hack to eliminate the SSL certificate verification notification
+class Net::HTTP
+  alias_method :old_initialize, :initialize
+  def initialize(*args)
+    old_initialize(*args)
+    @ssl_context = OpenSSL::SSL::SSLContext.new
+    @ssl_context.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  end
+end
+
 # read in some csv files, look for public IP addresses
 # if public, probe it for a web server
 # if a web server responds, check to see if it's a SIP phone
@@ -122,7 +132,7 @@ def get_response_from_url(url)
   data = response.body
   result = JSON.parse(data)
 #puts JSON.pretty_generate(result)
-  return result
+#  return result
 end
 
 def get_account(account)
@@ -196,8 +206,8 @@ end
 File.open(output_csv, 'w') do |out_file|
   
   # Write headers
-  out_file << "Account,User,IP Address,Manufacturer,Model,Firmware,Server type,HTTP Response code,HTTP Message,Page Title,Login Attempt,Password \n"
-  
+  out_file << "Account,Extension,User,Contact Info,IP Address,Manufacturer,Model,Firmware,Server type,HTTP Response code,HTTP Message,Page Title,Login Attempt,Password \n"
+ 
   input_filenames.each do |filename|
     if File.exists? "#{input_folder}/#{filename}"
       puts "Working on \"#{filename}\"...\n\n"
