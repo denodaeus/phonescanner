@@ -162,7 +162,7 @@ def get_data_for_user(user)
   account = get_account(account_id)
   info = get_contact_info_from_account(account)
   extension = get_ext_number_from_device(get_device_from_dk_id(get_device_kit_from_device_property_value(user)))
-  data = { :account_id => account_id, :extension => extension, :sipid => user, :name => info[:name], :phone => info[:phone], :email => [:email] }
+  data = { :account_id => account_id, :extension => extension, :sipid => user, :name => info[:name], :phone => info[:phone], :email => info[:email] }
 end
 
 # SEND EMAIL SUMMARY OF REPORT
