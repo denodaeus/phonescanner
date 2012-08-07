@@ -167,7 +167,7 @@ def get_ext_number_from_device(device)
 end
 
 def get_last_billed_statement_amount(account)
-	result = get_response_from_url("/search/Invoices?accountId=#{account}&childStatementObject.StartInGMT={gt}#{last30Days}&_orderBy=childStatementObject.StartInGMT:desc")
+  result = get_response_from_url("/search/Invoices?accountId=#{account}&childStatementObject.StartInGMT={gt}#{last30Days}&_orderBy=childStatementObject.StartInGMT:desc")
   dollars = result.fetch("InvoicesList").first.fetch("StatementObject").fetch("OpeningBalance")
 end
 
