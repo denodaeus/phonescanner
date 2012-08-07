@@ -388,7 +388,7 @@ File.open(output_csv, 'w') do |out_file|
               puts "writing to file\n\n"
               begin
                 data = get_data_for_user(user)
-                out_file << "#{data[:account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{last_billed},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+                out_file << "#{data[:account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{data[:last_billed]},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               rescue
                 out_file << ",#{user},,,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               end
