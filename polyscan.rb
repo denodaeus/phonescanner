@@ -167,8 +167,14 @@ def get_ext_number_from_device(device)
 end
 
 def get_last_billed_statement_amount(account)
-  result = get_response_from_url("/search/Invoices?accountId=#{account}&childStatementObject.StartInGMT={gt}#{last30Days}&_orderBy=childStatementObject.StartInGMT:desc")
-  dollars = result.fetch("InvoicesList").first.fetch("StatementObject").fetch("OpeningBalance")
+  begin
+    result = get_response_from_url("/search/Invoices?accountId=#{account}&_orderBy=InvoiceId:desc&_pageSize=1")
+    dollars = result.fetch("InvoicesList").first.fetch("Amount")
+    #result = get_response_from_url("/search/Invoices?accountId=#{account}&childStatementObject.StatementStatusId=O")
+    #dollars = result.fetch("InvoicesList").first.fetch("StatementObject").fetch("OpeningBalance")
+  rescue
+    dollars = "It's over 9000!"
+  end
 end
 
 def get_data_for_user(user)
@@ -390,7 +396,7 @@ File.open(output_csv, 'w') do |out_file|
                 data = get_data_for_user(user)
                 out_file << "#{data[:account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{data[:last_billed]},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               rescue
-                out_file << ",#{user},,,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+                out_file << ",#{user},,,,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               end
               do_not_log = nil
             end  
