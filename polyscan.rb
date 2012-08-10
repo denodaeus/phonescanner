@@ -131,8 +131,6 @@ def get_response_from_url(url)
   response = http.request(request)
   data = response.body
   result = JSON.parse(data)
-#puts JSON.pretty_generate(result)
-#  return result
 end
 
 def get_account(account)
@@ -170,8 +168,6 @@ def get_last_billed_statement_amount(account)
   begin
     result = get_response_from_url("/search/Invoices?accountId=#{account}&_orderBy=InvoiceId:desc&_pageSize=1")
     dollars = result.fetch("InvoicesList").first.fetch("Amount")
-    #result = get_response_from_url("/search/Invoices?accountId=#{account}&childStatementObject.StatementStatusId=O")
-    #dollars = result.fetch("InvoicesList").first.fetch("StatementObject").fetch("OpeningBalance")
   rescue
     dollars = "It's over 9000!"
   end
