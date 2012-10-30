@@ -164,6 +164,10 @@ def get_ext_number_from_device(device)
   ext = result.fetch("DevicePropertiesList").first.fetch("PropertyValue")
 end
 
+def get_reseller_for_account(account)
+  reseller = account["ParentAccountId"]
+end
+
 def get_last_billed_statement_amount(account)
   begin
     result = get_response_from_url("/search/Invoices?accountId=#{account}&_orderBy=InvoiceId:desc&_pageSize=1")
@@ -177,10 +181,11 @@ def get_data_for_user(user)
   device_kit = get_device_kit_from_device_property_value(user)
   account_id = get_account_id_from_dk_id(device_kit)
   account = get_account(account_id)
+  reseller = get_reseller_for_account(account)
   info = get_contact_info_from_account(account)
   extension = get_ext_number_from_device(get_device_from_dk_id(get_device_kit_from_device_property_value(user)))
   dollars = get_last_billed_statement_amount(account_id)
-  data = { :account_id => account_id, :extension => extension, :sipid => user, :name => info[:name], :phone => info[:phone], :email => info[:email], :last_billed => dollars }
+  data = { :reseller_account_id => reseller, :account_id => account_id, :extension => extension, :sipid => user, :name => info[:name], :phone => info[:phone], :email => info[:email], :last_billed => dollars }
 end
 
 # SEND EMAIL SUMMARY OF REPORT
@@ -214,7 +219,7 @@ end
 File.open(output_csv, 'w') do |out_file|
   
   # Write headers
-  out_file << "Account,Extension,User,Contact Info, Last Billed,IP Address,Manufacturer,Model,Firmware,Server type,HTTP Response code,HTTP Message,Page Title,Login Attempt,Password \n"
+  out_file << "Account,Reseller Account,Extension,User,Contact Info, Last Billed,IP Address,Manufacturer,Model,Firmware,Server type,HTTP Response code,HTTP Message,Page Title,Login Attempt,Password \n"
  
   input_filenames.each do |filename|
     if File.exists? "#{input_folder}/#{filename}"
@@ -390,9 +395,9 @@ File.open(output_csv, 'w') do |out_file|
               puts "writing to file\n\n"
               begin
                 data = get_data_for_user(user)
-                out_file << "#{data[:account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{data[:last_billed]},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+                out_file << "#{data[:account_id]},#{data[:reseller_account_id]},#{data[:extension]},#{user},#{data[:name]}/#{data[:phone]}/#{data[:email]},#{data[:last_billed]},#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               rescue
-                out_file << ",#{user},,,,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
+                out_file << ",#{user},,,,,#{ip},#{maker},#{model},#{firmware},#{server},#{code},#{msg},#{title},#{login[:login_status]},#{login[:pw_status]} \n"
               end
               do_not_log = nil
             end  
