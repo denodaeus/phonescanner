@@ -5,6 +5,7 @@
 
 dump_file=ARGV[0]
 
+
 File.open("#{dump_file}-parsed.csv", "w") { |out_file|
     line = []
     new_entry = false
