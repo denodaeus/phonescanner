@@ -13,10 +13,10 @@
 
 ############################## CONFIG 
 
+input_filenames = ARGV
 time_now = Time.now.strftime('%Y%m%d-%H%M%S')
-input_folder = "proxy"
-input_filenames = ['vocalocity.csv']
-output_folder = "proxy"
+input_folder = "/usr/local/phonescanner/proxy"
+output_folder = "/usr/local/phonescanner/proxy"
 output_filename = "#{input_folder}/mergedproxy.csv"
 
 aastra_m_rgx = /(Aastra \d*\w*)/
@@ -43,9 +43,10 @@ phone_model_rgx = /Aastra|Polycom|Linksys|Cisco|eyeBeam|Bria|Zoiper|Acrobits|fri
 File.open(output_filename, 'w') do |out_file|
   
   input_filenames.each do |filename|
-    if File.exists? "#{input_folder}/#{filename}"
+    if File.exists? "#{filename}"
       puts "Parsing \"#{filename}\"..."
-      File.open("#{input_folder}/#{filename}").each do |line|
+      File.open("#{filename}").each do |line|
+       begin
         #puts " ... #{line}" 
         #Split each line into distinct elements
         elements = line.split("\t")
@@ -92,7 +93,9 @@ File.open(output_filename, 'w') do |out_file|
             this_model = elements[3].match(newcisco_m_rgx)[1]
             this_firmware = elements[3].match(newcisco_f_rgx)[1]
         end
-
+       rescue
+         next
+       end
 
         out_file <<  "#{this_account},#{this_user},#{phone_make},#{this_model},#{this_firmware},#{internal_ip},#{external_ip}\n"
       end
