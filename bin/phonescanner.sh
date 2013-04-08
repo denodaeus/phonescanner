@@ -7,7 +7,7 @@ HOSTS="$@"
 USER=nagios
 FILE=$PSPATH/output/polyscan-results.csv
 SCRIPT=$PSPATH/polyscan.rb
-USERS="bobby.smith@vocalocity.com"
+USERS="TSLeaders@vocalocity.com,bobby.smith@vocalocity.com,randy.layman@vocalocity.com,neo-internal@vocalocity.com"
 LOG=$PSPATH/logs/polyscan.log.$DATE
 USERNAME=root
 
